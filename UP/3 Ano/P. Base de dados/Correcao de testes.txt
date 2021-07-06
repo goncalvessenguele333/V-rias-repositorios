@@ -1,0 +1,71 @@
+create DATABASE Loja;
+use Loja;
+create table Vendendor(vd_id varchar(10) PRIMARY KEY, apelido varchar(40), nome varchar(50)
+);
+create table Cliente(cl_id varchar(10) PRIMARY KEY, c_nome varchar(50), data_Nasc date, 
+telefone integer, cidade varchar(50));
+create table Produto(prod_id varchar(10) PRIMARY KEY, p_nome varchar(40), marca varchar(40));
+create table Encomenda(enc_nr integer AUTO_INCREMENT PRIMARY KEY, prod_id varchar(30), 
+qtd integer, data_encomenda date, cl_id varchar(10), vd_id varchar(10), FOREIGN KEY(prod_id) 
+REFERENCES Produto(prod_id), FOREIGN KEY(cl_id) REFERENCES Cliente(cl_id), FOREIGN key(vd_id) 
+REFERENCES Vendendor(vd_id));
+
+insert into Vendendor (vd_id, apelido,nome)VALUES('SO1', 'Mungoi','Alberto Luis'),('SO3',
+ 'Hoog','James');
+
+INSERT into Cliente (cl_id, c_nome, data_Nasc, telefone, cidade) VALUES('C05','Nail Knite',
+ '25-03-1990', 828080200, 'Matola'), ('C02','Joao Covane', '05-09-1983', 847068100, 'Maputo'),
+('C06','Rodrigues Salomao', '01-12-1986', 864058232, 'Matola');
+
+insert into Produto(prod_id, p_nome,marca) VALUES('PP01','Wireless mouse', 'HP'),('PP02',
+'Keyboard', 'Dell'), ('PP013','Router', 'Huawei');
+
+insert into Encomenda(prod_id, qtd, data_encomenda, cl_id, vd_id) VALUES('PP01',2,'25-08-2016',
+'C02','SO1'),('PP02',1,'05-09-2016','C05','SO3'),('PP01',5,'01-09-2016','C02','SO3'),
+('PP04',2,'06-08-2016','C06','SO1');
+
+
+>>>Comando que visualiza id e nome de todos vendendores que receberam encomenda do cliente C02:
+select vendendor.vd_id,vendendor.nome from Vendendor, Cliente, Encomenda where 
+vendendor.vd_id=encomenda.vd_id and cliente.cl_id='C02';
+
+>>>comando para visualizar o id e nome do cliente que fez maior encomenda e que os seus nomes contem a letra 'C':
+SELECT cliente.cl_id, cliente.c_nome from cliente, encomenda WHERE encomenda.cl_id=cliente.cl_id AND encomenda.qtd=(SELECT MAX(encomenda.qtd)) AND cliente.c_nome LIKE '%C%';
+
+
+
+
+BASE DE DADOS PEROLA DO INDICO:  
+
+
+CREATE DATABASE DalcaoPerolaDoIndico;
+
+
+CREATE TABLE Balcao(codBalcao integer PRIMARY KEY , nomeBalcao varchar(50), cidade varchar(20));
+
+CREATE TABLE Cliente(codCliente integer PRIMARY KEY, nomeCompleto varchar(80), cidade varchar(50), rua varchar(60));
+
+CREATE TABLE Conta(codConta integer PRIMARY KEY, codBalcao integer, codCliente integer, tipoConta varchar(80), dataAbertura date, activo varchar(40), FOREIGN KEY(codBalcao) REFERENCES Balcao(codBalcao), FOREIGN KEY(codCliente) REFERENCES Cliente (codCliente));
+
+CREATE TABLE Operacao(codTipoOperacao integer PRIMARY KEY, designacaoOperacao varchar(50));
+
+create TABLE Transacao(codTrans integer PRIMARY KEY AUTO_INCREMENT, codConta integer, codTipoOperacao integer, valor integer, FOREIGN KEY(codConta) REFERENCES Conta(codConta), FOREIGN KEY(codTipoOperacao) REFERENCES Operacao(codTipoOperacao));
+
+INSERT INTO `balcao` (`codBalcao`, `nomeBalcao`, `cidade`) VALUES ('1222', 'BCI-MAtola A', 'Matola');
+INSERT INTO `balcao` (`codBalcao`, `nomeBalcao`, `cidade`) VALUES ('1455', 'BCI -Matola Sede', 'Matola');
+INSERT INTO `balcao` (`codBalcao`, `nomeBalcao`, `cidade`) VALUES ('2555', 'Bci-Malhampsene', 'Matola');
+
+INSERT INTO `cliente` (`codCliente`, `nomeCompleto`, `cidade`, `rua`) VALUES ('1422', 'Joao Antonio', 'Matola', 'Matola 451');
+INSERT INTO `cliente` (`codCliente`, `nomeCompleto`, `cidade`, `rua`) VALUES ('4511', 'Helio Pinto ', 'Maputo', 'Ngungunyane 125'), ('2333', 'Gina Valter', 'Matola', 'Matola_1254');
+
+INSERT INTO `conta` (`codConta`, `codBalcao`, `codCliente`, `tipoConta`, `dataAbertura`, `activo`) VALUES ('1452', '1222', '2333', 'Corrente', '2019-04-05', 'ONN');
+INSERT INTO `conta` (`codConta`, `codBalcao`, `codCliente`, `tipoConta`, `dataAbertura`, `activo`) VALUES ('8744', '2555', '4511', 'Corrente', '2019-04-16', 'ONN');
+
+INSERT INTO `operacao` (`codTipoOperacao`, `designacaoOperacao`) VALUES ('1111', 'Levantamento'), ('2222', 'Deposito');
+
+INSERT INTO `transacao` (`codTrans`, `codConta`, `codTipoOperacao`, `valor`) VALUES (NULL, '1452', '2222', '1255');
+INSERT INTO `transacao` (`codTrans`, `codConta`, `codTipoOperacao`, `valor`) VALUES (NULL, '8744', '1111', '1000');
+
+
+
+SELECT SUM(transacao.valor)- SUM(transacao.valor) FROM transacao,conta,operacao,cliente,balcao WHERE transacao.codTipoOperacao=operacao.codTipoOperacao AND balcao.codBalcao=conta.codBalcao AND conta.codCliente=cliente.codCliente;

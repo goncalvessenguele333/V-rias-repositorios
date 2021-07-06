@@ -1,0 +1,253 @@
+create table Departamento(codDepto number primary key, nome varchar2(30));
+
+create table Empregado(codEmp number primary key, nome varchar2(30), dataNasc date, endereco varchar2(30), 
+sexo varchar2(10), salario number(5,2),codDepto number, foreign key (codDepto) references Departamento);
+
+create table Projecto (codProj number primary key, titulo varchar2(30), codDepto number, foreign key (codDepto)references Departamento);
+
+create table TrabalhaEm(codEmp number, codProj number, horas number, primary key (codEmp, codProj), foreign key (codEmp) references 
+Empregado, foreign key (codProj) references Projecto);
+
+create table Dependente(codDep number, codEmp number, nome varchar2(40),sexo varchar2(40),dataNasc date, grau_para varchar2(15), 
+primary key(codDep,codEmp), foreign key(codEmp) references Empregado);
+
+Insercao de dados fictícios nas tabelas.
+DEPARTAMENTO:
+insert into Departamento values(11, 'Informatica');
+insert into Departamento values(12, 'Recursos humanos');
+insert into Departamento values(13, 'Administracao');
+insert all
+into Departamento values(14,'Contabilidade')
+into Departamento values(15,'Transportes')
+into Departamento values(16,'Organizacao e logistica')
+select * from dual;
+
+
+EMPREGADO:
+insert all
+into Empregado values(112, 'Joao Jose',to_date('12/05/1988','dd/mm,yyyy'),'Matola','Feminino',254,12)
+into Empregado values(113, 'Fernando Lino',to_date('12/06/1999','dd/mm,yyyy'),'Matola','Masculino',999,11)
+into Empregado values(114, 'Gina Alberto',to_date('11/01/1995','dd/mm,yyyy'),'Liberdade','Feminino',456,15)
+into Empregado values(115, 'Helio Pedro',to_date('16/05/1990','dd/mm,yyyy'),'Djuba','MAsculino',486,14)
+into Empregado values(116, 'Naomi Teresa',to_date('23/02/1998','dd/mm,yyyy'),'Malhampsene','Feminino',128,16)
+select * from dual;
+
+PROJECTO:
+insert all
+into Projecto values(223,'Cabeamento da rede local', 11)
+into Projecto values(224,'Contratacao de pessoal', 12)
+into Projecto values(225,'Melhoramento da rede interna', 11)
+into Projecto values(226,'Manuntencao de viaturas', 15)
+into Projecto values(227,'Preparacao de reuniao interna', 16)
+select * from dual;
+
+TRABALHAEM: 
+insert all
+ into TrabalhaEm values112, 223,30)
+ into TrabalhaEm values114,226,50)
+ into TrabalhaEm values(116,225,78)
+ into TrabalhaEm values(116,224,78)
+ into TrabalhaEm values((113,225,78)
+ select * from dual;
+
+DEPENDENTE:
+
+insert all
+into Dependente values(125,116,'Felismina Andre','Feminino',to_date('11/08/2008','dd/mm/yyyy'),'filha')
+ into Dependente values(126,113,'Pedro Gimo','Masculino',to_date('06/11/2010','dd/mm/yyyy'),'sobrinho')
+ into Dependente values(127,114,'Pedro Gimo','Masculino',to_date('06/11/2010','dd/mm/yyyy'),'sobrinho')
+ select * from dual;
+
+II- Para cada Empregado, mostre o código, nome do empregado e o nome do departamento ondeestá afecto.
+select Empregado.codEmp as "Codigo", Empregado.nome as "Nome do Empregado", Departamento.nome as "Nome do departamento"from 
+Empregado, Departamento where Empregado.codDepto=Departamento.codDepto;
+
+III- Selecione o salário minímo, máximo e a média dos salários.
+select max(salario) as "Salario maximo", min(salario) as "salario minimo",avg(salario) as "media de salarios)" from Empregado;
+
+IV- Visualize os Empregados (código e nome) que auferem maior salário que o empregado com
+código 114.
+select codEmp as "Codigo do empregado", nome as "Nome do empregado" from Empregado where salario> some(select salario from Empregado where codEmp=114);
+
+V- Quais os departamentos (nome) em que o salário minímo é inferior a 456 Meticais?
+select Departamento.nome from Departamento, Empregado where Empregado.codDepto=Departamento.codDepto and Empregado.salario< 456;
+ OU
+select d.nome from Departamento d join Empregado e on(d.codDepto=e.codDepto) where e.salario< 456;
+
+
+VI- Quais os códigos e nomes dos empregados que trabalham em projectos não pertencentes aos departamentos aos quais estão vinculados.
+
+
+
+VII- Para cada empregado (CodEmp), visualize o número de dependentes.
+select Empregado.nome, count(Dependente.codEmp) from Empregado, Dependente where Empregado.codEmp=Dependente.codEmp group by Empregado.nome;
+select e.nome, count(d.codEmp) from Empregado e join Dependente d on(e.codEmp=d.codEmp) group by e.nome;
+
+
+VIII-Quais os empregados que trabalham no Projecto designado Informatização e quantas horas trabalha cada um nesse projecto 
+(nome do empregado, horas). Ordene pelo número de horas descendentemente.
+
+select Empregado.nome, TrabalhaEm.horas from Empregado, TrabalhaEm, Projecto where Empregado.codEmp=TrabalhaEm.codEmp and Projecto.titulo='Contratacao de pessoal' order by TrabalhaEm.horas desc;
+
+
+
+Cr ie o ROLE designado Recursos_Humanos e atribua os seguintes privilégios
+create role ro_Goncalves identified by senguele;
+
+
+Conectar-se ao SGBD;
+ grant connect to ro_Goncalves;
+
+
+Seleccionar toda a informação na tabela Departamento;
+grant select on Departamento to ro_Goncalves;
+
+Selecionar toda informação na tabela Empregado com excepção do atributo salário;
+
+EXERCICIO NR 2:
+
+create table Faculdade(cod_faculdade number primary key, designacao varchar2(15), avenida varchar2(10), nr number(3), telefone number(10));
+create table Curso(cod_curso number primary key, nomeC varchar2(20), cod_faculdade, foreign key (cod_faculdade) references Faculdade);
+create table Disciplina(cod_disciplina number primary key, nomed varchar2(20), semestre varchar2(5), cod_curso, foreign key (cod_curso) references Curso);
+
+create table Estudante1(cod_estudante number primary key, apelido varchar2(15),outros_nome varchar2(20),contacto number(10), rua_avenida varchar2(5),
+bairro varchar2(15), quarteirao varchar2(5), casanr number(5), cod_curso number, foreign key (cod_curso) references Curso);
+
+create table Turma(cod_turma number primary key, nome varchar2(20), ano number, semestre varchar2(5), ano_academico varchar2(6),cod_curso number, foreign key (cod_curso) references Curso);
+
+create table Pauta(cod_estudante number,cod_disciplina number, cod_turma number, teste1 number(2,2), teste2 number(2,2), trab1 number(2,2), 
+trab2 number(2,2), media number, primary key(cod_estudante, cod_disciplina, cod_turma), foreign key(cod_estudante) references Estudante,
+ foreign key(cod_disciplina) references Disciplina, foreign key(cod_turma) references Turma);
+
+
+insert all
+into Faculdade values(122,'ESTEC','Av. de Moc',125,842546322)
+into Faculdade values(123,'FACNM','Av. de Moc', 126,841125480)
+into Faculdade values(124,'ESCOG','Av. de Moc',127,847519002)
+into Faculdade values(125,'C. Saude','Av. de Moc', 128,841356200)
+select * from dual;
+
+insert all
+into Curso values(2001,'Informatica',122)
+into Curso values(2002,'Ensino de Matematica',123)
+into Curso values(2003,'Ensino de Biologia',123)
+into Curso values(2004,'Gestao Finaceira',124)
+into Curso values(2005,'Medicina geral',125)
+select * from dual;
+
+insert all
+into Disciplina values(1010, 'ALGA', '1o',2001)
+into Disciplina values(1011, 'Mat basica', '1o',2002)
+into Disciplina values(1012, 'Dicactica ', '2o',2002)
+into Disciplina values(1013, 'Contabilidade geral', '2o',2004)
+into Disciplina values(1014, 'Botanica geral', '2o',2003)
+select * from dual;
+
+insert all
+into Estudante1 values(15001,'Senguele','Goncalves',841547004,'Rua A','Tsalala','NAS1',110,2001)
+into Estudante1 values(15002,'Teresa','Naomi',846625880,'Rua B','Tsalala','NAS1',111,2003)
+select * from dual;
+
+insert all
+into Turma values(1000,'IfonA2019',2019,'1o','3o',2001)
+into Turma values(1001,'MatA2019',2019,'1o','2o',2002)
+into Turma values(1002,'BilA2019',2019,'1o','1o',2003)
+into Turma values(1003,'Gest2019',2019,'1o','1o',2004)
+into Turma values(1004,'MedA2019',2019,'1o','2o',2005)
+select * from dual;
+
+
+
+EXERCICIO NR 3:
+
+ create table Vendendor(vd_id varchar(5) primary key, apelido varchar2(20),nome varchar2(40));
+
+create table Cliente(cl_id varchar2(6) primary key, c_nome varchar2(60), data_nascimento date, telefone varchar2(15), cidade varchar2(20));
+
+create table Produto(prod_id varchar2(6) primary key,p_nome varchar2(60), marca varchar2(20));
+
+create table Encomenda(enc_nr number primary key, prod_id varchar2(6),qtd number, data_encomenda date, cl_id varchar2(5), vd_id varchar2(5),
+foreign key(prod_id) references Produto, foreign key(cl_id) references Cliente, foreign key(vd_id) references Vendendor);
+
+
+
+insert all
+into Vendendor values('S01','Mungoi','Alberto Luis')
+into Vendendor values('S03','Hoog', 'James')
+select * from dual;
+
+
+ insert all
+ into Cliente values('C05','Nail Knite', to_date('25/03/1990','dd/mm/yyyy'),'+258828080200','Matola')
+ into Cliente values('C02','Joao Covane', to_date('05/09/1983','dd/mm/yyyy'),'+258847068100','Maputo')
+ into Cliente values('C06','Rodrigues Solomao', to_date('01/12/1986','dd/mm/yyyy'),'+258864058232','Matola')
+ select * from dual;
+
+
+insert all
+into Produto values('PP01','Wireless Mouse','HP')
+into Produto values('PP02','Keyboard','Dell')
+into Produto values('PP03','Router','Huawei')
+select * from dual;
+
+
+
+insert all
+into Encomenda values(1,'PP01',2,to_date('25/08/2016','dd/mm/yyyy'),'C02','S01')
+into Encomenda values(2,'PP01',1,to_date('05/09/2016','dd/mm/yyyy'),'C05','S03')
+into Encomenda values(3,'PP01',5,to_date('01/09/2016','dd/mm/yyyy'),'C02','S03')
+into Encomenda values(4,'PP03',7,to_date('06/08/2016','dd/mm/yyyy'),'C06','S01')
+select * from dual;
+
+II- Escreva o comando para visualizar o id e nome de todos vendedores que receberam encomendas do Cliente 'C02'.
+select Vendendor.vd_id as "Codigo do vendedor", Vendendor.nome||' '|| Vendendor.apelido as "Nome do vendendor" from Vendendor, Encomenda where Vendendor.vd_id=Encomenda.vd_id and Encomenda.cl_id='C02';
+select Cliente.cl_id as "Codigo", Cliente.c_nome as "Nome do Cliente" from Cliente, Encomenda where Encomenda.cl_id=Cliente.cl_id and Encomenda.qtd<=(select max(Encomenda.qtd) from Encomenda) and Cliente.c_nome like '%C%';
+
+select c.cl_id as "Codigo", c.c_nome as "Nome do Cliente" from Cliente c join Encomenda e on (e.cl_id=c.cl_id) where e.qtd<=(select max(e.qtd) from Encomenda e) and c.c_nome like '%C%';
+
+
+
+
+
+create role Recursos_Humanos;
+grant connect to Recursos_Humanos;
+grant select on Departamento to Recursos_Humanos;
+grant insert on Empregado to Recursos_Humanos;
+grant insert on Dependente to Recursos_Humanos;
+
+grant all privileges on Dependente to Recursos_Humanos;
+
+revoke all on Empregado from Recursos_Humanos;
+
+create view dados_Empregados  as select codEmp,nome,dataNasc,endereco,sexo,codDepto from Empregado;
+grant select on  dados_Empregados to Recursos_Humanos;
+
+create view dados_Dependente as  select nome, dataNasc,grau_para from Dependente;
+ grant select on dados_Dependente to Recursos_Humanos;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

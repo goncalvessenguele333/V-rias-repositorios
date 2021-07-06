@@ -1,0 +1,128 @@
+
+create user teste identified by teste;
+
+grant connect, resource, create view,create sequence, create synonym,create trigger, create procedure, create table to teste;
+
+create table balcao(codBalcao number primary key, nomeBalcao varchar2(15),cidade varchar2(15));
+
+create table Cliente (codCliente number primary key, nomeCompleto varchar2(20), cidade varchar2(15), rua varchar2(20));
+
+ create table conta(codConta number primary key, codBalcao number, codCliente number, tipoConta varchar2(15), 
+dataAbertura date, activo varchar2(15), foreign key(codBalcao) references Balcao, foreign key (codCliente) references Cliente);
+
+create table Transacoes(codTransacao number primary key,codConta number, codTipoOperacao number, valor number,
+ foreign key (codConta) references Conta, foreign key(codTipoOperacao) references Operacoes);
+
+
+
+
+create table Relatorio(codRelatorio number primary key, totalCliente number, totalValor number);
+ insert into Relatorio values(1,(select count(*) from Cliente),(select sum(valor) from Transacoes));
+
+TRIGGER
+
+create or replace trigger qtdCliente
+AFTER INSERT OR DELETE ON Cliente
+FOR EACH ROW
+begin
+IF INSERTING THEN
+update Relatorio
+set totalCliente=totalCliente+1;
+ELSIF DELETING THEN
+update Relatorio set totalCliente=totalCliente-1;
+END IF;
+end;
+/
+
+
+
+
+
+insert all
+into Balcao values(120,'Matola BCI','Matola')
+into Balcao values(121,'Maputo BCI','Maputo')
+select * from dual;
+
+insert all
+into Cliente values(220,'Joao Jose','Matola','Rua 125')
+into Cliente values(221,'Andre Alberto', 'Maputo', 'rua 140')
+select * from dual;
+
+
+insert into Conta values(11023, 121,221,'corrente', to_date('18/09/2018','dd/mm/yyyy'),'zero');
+ insert into Conta values(11022, 120,220,'poupanca', to_date('01/05/2017','dd/mm/yyyy'),'um');
+
+insert all
+into Operacoes values(233,'Consulta')
+into Operacoes values(234,'Levantamento')
+t into Operacoes values(235,'Deposito');
+
+select * from dual;
+
+insert all
+into Transacoes values(111,11023,234,2500)
+into Transacoes values(112,11022,234,5000)
+into Transacoes values(115,11022,235,5000)
+ into Transacoes values(116,11022,235,3000)
+select * from dual;
+
+
+
+select sum(Transacoes.valor) from Transacoes, Operacoes where Operacoes.codTipoOperacao=Transacoes.codTipoOperacao and Operacoes.designacaoOperacao='Deposito' - (select sum(Transacoes.valor) from Transacoes, Operacoes where Operacoes.codTipoOperacao=Transacoes.codTipoOperacao and Operacoes.designacaoOperacao='Levantamento');
+
+
+
+create or replace function saldo_absoluto()
+return number
+Is
+v_debito Transacoes.valor%type;
+v_credito Transacoes.valor%type;
+v_diferenca number;
+Bigin
+
+select sum(Transacoes.valor) into v_credito from Transacoes, Operacoes where Operacoes.codTipoOperacao=Transacoes.codTipoOperacao and Operacoes.designacaoOperacao='Deposito';
+v_debito=select sum(Transacoes.valor) from Transacoes, Operacoes where Operacoes.codTipoOperacao=Transacoes.codTipoOperacao and Operacoes.designacaoOperacao='Levantamento';
+v_diferenca=v_credito-v_debito;
+
+
+
+SQL> create or replace function somaValores
+  2  return number
+  3  Is
+  4  v_valor Transacoes.valor%type;
+  5  begin
+  6  select sum(Transacoes.valor) into v_valor from Transacoes, Operacoes where
+Operacoes.codTipoOperacao=Transacoes.codTipoOperacao and Operacoes.designacaoOpe
+racao='Deposito';
+ select Transacoes.valor into v_valor from Transacoes, Operacoes where Opera
+coes.codTipoOperacao=Transacoes.codTipoOperacao and Operacoes.designacaoOperacao
+='Deposito';
+  return v_valor;
+ end;
+
+
+
+TRANSACOES
+Begin
+update Transacoes set valor=valor + 255 where codConta=11023;
+COMMIT;
+EXCEPTION WHEN OTHERS THEN ROLLBACK;
+END;
+/
+
+VIEWS
+
+create view Consulta_Conta as select c.nomeCompleto, c.Cidade, co.codConta,t.valor from Cliente c join conta
+ co on(c.codCliente=co.codCliente) join Transacoes t on (t.codConta=co.codConta);
+
+select * from Consulta_Conta;
+
+
+create view Balcao_consulta as
+select  b.nomeBalcao,c.nomeCompleto,co.codConta,te.valor from Balcao b join conta co on (b.codBalcao=co.codBalcao)
+ join Transacoes te on (te.codConta=co.codConta) join Cliente c on (c.codCliente=co.codCliente);
+ WITH READ ONLY;
+select * from Balcao_consulta;
+
+ select view_name from user_views;
+

@@ -1,0 +1,44 @@
+
+SQL> create table Estudante(Estudante_id number primary key, primeiro_nome varch
+ar2(60), apelido varchar2(30), data_nascimento date);
+
+
+SQL> insert all
+  2  into Estudante values(121,'Joao','Zunguze',to_date('23/02/1992','dd/mm/yyyy
+'))
+  3  into Estudante values(141,'Alberto','Jamisse', to_date('20/10/1988', 'dd/mm
+/yyyy'))
+  4  into Estudante values(131,'Antonio','Simbine', to_date('25/12/1998', 'dd/mm
+/yyyy'))
+  5  select * from dual
+  6  COMMIT;
+
+
+
+
+SQL> DECLARE
+  2  v_primeiro_nome varchar2(60);
+  3  v_apelido vachar2(30);
+  4  v_data date;
+  5  BEGIN
+  6  select primeiro_nome,apelido,data_nascimento into v_primeiro_nome,v_apelido
+,v_data from Estudante where Estudante_id=121;
+  7  DBMS_OUTPUT.PUT_LINE('Estudante: '||v_primeiro_nome||' ' ||v_apelido||' ' |
+|v_data);
+  8  END;
+
+
+
+SQL> select lower(substr(apelido,1,1)||''||substr(primeiro_nome,1,9))as "Dominio
+
+
+
+
+SQL> begin
+  2  for v_estudante in(select * from Estudante)
+  3  loop
+  4  update Estudante set E_mail= lower(substr(apelido,1,1)||''||substr(primeiro
+_nome,1,9))||'@uniXY.ac.mz' where Estudante_id=121;
+  5  End loop;
+  6  End;
+  7  /
